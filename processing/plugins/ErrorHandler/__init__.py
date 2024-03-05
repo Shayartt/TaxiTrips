@@ -28,9 +28,9 @@ class ErrorHandler :
         
         :param track_reporter: The reporter object to be used to report the errors.
         
-        :type track_reporter: ProcessingReporter | JobReporter | StreamReporter
+        :type track_reporter: NotificationReporter
         """
-        self.track_reporter = track_reporter
+        self._track_reporter = track_reporter
     
     def set_track_reporter(self, args: list) -> None:
         """
@@ -43,7 +43,7 @@ class ErrorHandler :
         """
         if args  :
             function_class = args[0] # Get first args which is going to be self class
-            self.track_reporter = function_class.track_reporter # Get the track_reporter object from the class, carefull this may crash if not fund, maybe add try except or a previous check?
+            self._track_reporter = function_class.track_reporter # Get the track_reporter object from the class, carefull this may crash if not fund, maybe add try except or a previous check?
         else :
             raise Exception(error_handling_enum.TRACK_REPORTER_NOT_FOUND.value)
         
@@ -76,7 +76,7 @@ class ErrorHandler :
                     trace_logs = str(e); e = -1
                     
                 # Check if we have a reporter object to report the error, if not we'll get it from the function args.
-                if not self.track_reporter :
+                if not self._track_reporter :
                     print("kwargs", kwargs)
                     self.set_track_reporter(args)
                 
@@ -88,7 +88,7 @@ class ErrorHandler :
                     "status" : report_status_enum.FAILED.value, 
                 }
                 
-                res = self.track_reporter.publish_to_sqs(reporting_tracker_message, func.__name__)
+                res = self._track_reporter.publish_to_sqs(reporting_tracker_message, func.__name__)
                     
                 print(reporting_tracker_message, res)
                 

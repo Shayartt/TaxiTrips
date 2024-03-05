@@ -27,10 +27,10 @@ class NotificationReporter(object):
         :return: NotificationReporter object.
         """
         
-        self.index_name = index_name
+        self._index_name = index_name # TODO use in input later to make this reporter dynamic and used from the whole project.
         # Init boto3 client to be used to publish into SQS
-        self.sqs_client = boto3.client("sqs", os.environ["AWS_REGION"], aws_access_key_id= os.environ["AWS_ACCESS_KEY_ID"], aws_secret_access_key= os.environ["AWS_SECRET_ACCESS_KEY"])
-        self.SQS_NOTIFICATION = os.environ["SQS_NOTIFICATION"]
+        self.__sqs_client = boto3.client("sqs", os.environ["AWS_REGION"], aws_access_key_id= os.environ["AWS_ACCESS_KEY_ID"], aws_secret_access_key= os.environ["AWS_SECRET_ACCESS_KEY"])
+        self.__SQS_NOTIFICATION = os.environ["SQS_NOTIFICATION"]
         
     def publish_to_sqs(self, message) : 
         """
@@ -47,7 +47,7 @@ class NotificationReporter(object):
             input_body = {
                 "document_content" : message
             }
-            self.sqs_client.send_message(QueueUrl=self.SQS_QUEUE_TRACKING_URL, MessageBody=json.dumps(message)) # This is by default an Async call, no need to implement anything specific.
+            self.__sqs_client.send_message(QueueUrl=self.__SQS_NOTIFICATION, MessageBody=json.dumps(message)) # This is by default an Async call, no need to implement anything specific.
             return True
         except Exception as e : 
             print("Error while publishing to SQS : " + str(e))
