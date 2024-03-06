@@ -28,7 +28,7 @@ def main() :
     frequence = int(input("Frequence of generation (in seconds) : "))
     
     # Read the source data to be used in the generation: 
-    source_data = pd.read_csv("C:/Users/MohamedMallouk/Documents/Micro-Services/Learning/data/yellow_tripdata_2019-01.csv")
+    source_data = pd.read_csv(os.environ['DATA_SOURCE_PATH'])
     
     # FILLNA for the source data
     source_data.fillna(0, inplace=True)
