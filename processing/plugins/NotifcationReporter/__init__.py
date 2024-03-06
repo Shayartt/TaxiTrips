@@ -18,7 +18,7 @@ class NotificationReporter:
     """
     NotificationReporter is used to report into SQS queue to publish into socketIO microservices to be consumed by the front-end and insert into OS index to vizualise in Kibana.
     """
-    def __init__(self, index_name = "data_processing_tracker") : 
+    def __init__(self, index_name = "traffic_processing_tracker") : 
         """
         Constructor of NotificationReporter class that will be the mother function to init resources needed to keep the application in-track and publish anything to logging system and socket.
         
