@@ -6,7 +6,7 @@ For more information/question please contact malloukmoe@gmail.com
 
 # High Level Diagram : 
 
-![Highlevel Diagram](doc/diagrams/Tec-Diagram-Flow.png?raw=true "Highlevel")
+![Highlevel Diagram](processing/doc/diagrams/Tec-Diagram-Flow.png?raw=true "Highlevel")
 
 
 More details coming soon..

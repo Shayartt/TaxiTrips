@@ -10,11 +10,11 @@ NotificationReporter
 
 -------------------
 
-This module is used to report updates / informations and any other important tracing to inform other microServices and logging system.
+This module is used to report updates / informations and any other important tracing to the logging system.
 
 """
 
-class NotificationReporter(object):
+class NotificationReporter:
     """
     NotificationReporter is used to report into SQS queue to publish into socketIO microservices to be consumed by the front-end and insert into OS index to vizualise in Kibana.
     """

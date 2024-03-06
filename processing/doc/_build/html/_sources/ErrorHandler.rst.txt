@@ -1,0 +1,21 @@
+ErrorHandler package
+====================
+
+Submodules
+----------
+
+ErrorHandler.enums module
+-------------------------
+
+.. automodule:: plugins.ErrorHandler.enums
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: plugins.ErrorHandler
+   :members:
+   :undoc-members:
+   :show-inheritance:

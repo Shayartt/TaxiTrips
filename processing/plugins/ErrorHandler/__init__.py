@@ -5,8 +5,8 @@ from functools import wraps
 import sys 
 
 # Import Mother Class : 
-from processing.plugins.NotifcationReporter import NotificationReporter
-from enums import report_status_enum, error_handling_enum
+from plugins.ErrorHandler.enums import report_status_enum, error_handling_enum
+from plugins.NotifcationReporter import NotificationReporter
 
 """
 
