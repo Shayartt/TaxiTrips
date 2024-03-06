@@ -26,7 +26,7 @@ class Generator(ABC):
         """
         Post initialization method.
         """
-        self._id = uuid.uuid4().int
+        self._id = uuid.uuid4().__str__() # As Str to insert it into ElasticSearch (Issue with Long type in ES)
     
     def health_check(self) -> bool:
         """

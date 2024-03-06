@@ -42,12 +42,21 @@ class DummyGenerator(Generator):
         """
         # Generate a random number between 1 and 22 and used it as trip perdiod in minutes.
         random_number = random.randint(1, 22)
-        tmp = {"tpep_dropoff_datetime" : datetime.now(), "tpep_pickup_datetime" : datetime.now() - timedelta(minutes=random_number)}
+        tmp = {"generated_id": self._id, "tpep_dropoff_datetime" : datetime.now().isoformat(), "tpep_pickup_datetime" : (datetime.now() - timedelta(minutes=random_number)).isoformat() }
         
         # For each column in our source_data except : tpep_dropoff_datetime, we will generate a random value based on values in our source_data : 
         for col in source_data.columns :
             if col not in ("tpep_dropoff_datetime","tpep_pickup_datetime") :
-                tmp[col] = random.choice(source_data[col].values)
+                random_value = random.choice(source_data[col].values)
+                
+                # Convert int64 & float64 to int and float
+                if source_data[col].dtype == "int64" :
+                    random_value = int(random_value)
+                elif source_data[col].dtype == "float64" :
+                    random_value = float(random_value)
+                    
+                # Append to our tmp dict
+                tmp[col] = random_value
         
         # Set the readiness to True
         self.is_ready = True
