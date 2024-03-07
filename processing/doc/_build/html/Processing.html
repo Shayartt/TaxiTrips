@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Processing package &mdash; TaxiTripPackage 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            TaxiTripPackage
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Processing package</a><ul>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#taxi-traffic-processor">Taxi Traffic Processor :</a><ul>
+<li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor</span></code></a><ul>
+<li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.get_data"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor.get_data()</span></code></a></li>
+<li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.pipeline_01"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor.pipeline_01()</span></code></a></li>
+<li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor.process_data()</span></code></a></li>
+<li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.zone_brodcast"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor.zone_brodcast</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cassandrahandler">CassandraHandler :</a><ul>
+<li><a class="reference internal" href="#src.CassandraHandler.CassandraWriter"><code class="docutils literal notranslate"><span class="pre">CassandraWriter</span></code></a><ul>
+<li><a class="reference internal" href="#src.CassandraHandler.CassandraWriter.write_to_cassandra"><code class="docutils literal notranslate"><span class="pre">CassandraWriter.write_to_cassandra()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TaxiTripPackage</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Processing package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Processing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="processing-package">
+<h1>Processing package<a class="headerlink" href="#processing-package" title="Permalink to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+</section>
+<section id="taxi-traffic-processor">
+<h2>Taxi Traffic Processor :<a class="headerlink" href="#taxi-traffic-processor" title="Permalink to this heading"></a></h2>
+<span class="target" id="module-src.TaxiTrafficProcessor"></span><dl class="py class">
+<dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.TaxiTrafficProcessor.</span></span><span class="sig-name descname"><span class="pre">TaxiTrafficProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_data_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_brodcast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Broadcast</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This Class will be responsible for processing the data of the taxi traffic received on the streaming server.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Method to get the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor.pipeline_01">
+<span class="sig-name descname"><span class="pre">pipeline_01</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor.pipeline_01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.pipeline_01" title="Permalink to this definition"></a></dt>
+<dd><p>Method to apply the first pipeline of the data.</p>
+<p>Apply Pipeline 01 over _data_df and return the status of the operation.</p>
+<p>1- Get Pickup/Drop Zone names from id.
+2- Compute trip duration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data">
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor.process_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data" title="Permalink to this definition"></a></dt>
+<dd><p>Method to process the data.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor.zone_brodcast">
+<span class="sig-name descname"><span class="pre">zone_brodcast</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Broadcast</span></em><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.zone_brodcast" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="cassandrahandler">
+<h2>CassandraHandler :<a class="headerlink" href="#cassandrahandler" title="Permalink to this heading"></a></h2>
+<span class="target" id="module-src.CassandraHandler"></span><dl class="py class">
+<dt class="sig sig-object py" id="src.CassandraHandler.CassandraWriter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.CassandraHandler.</span></span><span class="sig-name descname"><span class="pre">CassandraWriter</span></span><a class="reference internal" href="_modules/src/CassandraHandler.html#CassandraWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CassandraHandler.CassandraWriter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class will be responsible for writing the data into Cassandra.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CassandraHandler.CassandraWriter.write_to_cassandra">
+<span class="sig-name descname"><span class="pre">write_to_cassandra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CassandraHandler.html#CassandraWriter.write_to_cassandra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CassandraHandler.CassandraWriter.write_to_cassandra" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mallouk Mohamed.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

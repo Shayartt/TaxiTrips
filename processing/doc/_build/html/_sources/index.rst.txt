@@ -7,6 +7,7 @@ Welcome to TaxiTripPackage's documentation!
 ===========================================
 
 .. include:: Plugins.rst
+.. include:: Processing.rst
 
 
 Indices and tables
