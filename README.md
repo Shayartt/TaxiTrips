@@ -1,13 +1,14 @@
 # TaxiTrips : Big Data Processing & Monitoring 
-# Current Version : 1.2.0
 
-During this project we'll be handling real-time taxi traffic data, apply some ETL, process it and monitor some alertings, in addition to an admin dashboard platform.
+# Current Version: 1.2.0
 
-For more information/question please contact malloukmoe@gmail.com
+This project aims to handle real-time taxi traffic data, perform ETL processes, implement data processing, and monitor alerting mechanisms. Additionally, it includes an admin dashboard platform.
 
-# High Level Diagram : 
+For more information or any questions, please contact malloukmoe@gmail.com.
 
-![Highlevel Diagram](processing/doc/diagrams/Tec-Diagram-Flow.png?raw=true "Highlevel")
+## High-Level Diagram
 
+![High-Level Diagram](processing/doc/diagrams/Tec-Diagram-Flow.png?raw=true "High-Level")
 
 More details coming soon..
+

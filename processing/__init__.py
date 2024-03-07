@@ -14,11 +14,12 @@ from pyspark import SparkContext
 from pyspark.rdd import RDD
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SparkSession
+import pandas as pd 
 
 
 load_dotenv()
 
-def process_stream(rdd: RDD, cd_writer: CassandraWriter) -> None : 
+def process_stream(rdd: RDD, cd_writer: CassandraWriter, zones_df: pd.DataFrame) -> None : 
     """
     This function will be responsible for processing the data of the taxi traffic received on the streaming server.
     """
@@ -26,10 +27,7 @@ def process_stream(rdd: RDD, cd_writer: CassandraWriter) -> None :
     start_time = time.perf_counter()
     
     # Init TaxiTrafficProcessor :
-    taxi_traffic_processor = TaxiTrafficProcessor(rdd)
-    
-    # Process the data : 
-    taxi_traffic_processor.process_data()
+    taxi_traffic_processor = TaxiTrafficProcessor(rdd, zones_df)
     
     # Insert Data into Cassandra :
     cd_writer.write_to_cassandra(taxi_traffic_processor.get_data())
@@ -59,6 +57,9 @@ if __name__ == "__main__":
     # Generated streaming session id : 
     streaming_process_id = str(uuid.uuid4())
     
+    # Load Zone lookup dict, note : I used pandas here, because the whole file is small enough and never changed then the best option is to use pandas DF
+    df_zones = pd.read_csv(os.environ['ZONE_LOOKUP_PATH'])
+    
     # Init Database Writer:
     cassandra_writer = CassandraWriter()
     
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     lines = ssc.textFileStream(input_directory)
     
     # Process each RDD : 
-    lines.foreachRDD(lambda rdd: process_stream(rdd, cassandra_writer))
+    lines.foreachRDD(lambda rdd: process_stream(rdd, cassandra_writer, df_zones))
     
     # Start the streaming computation
     ssc.start()

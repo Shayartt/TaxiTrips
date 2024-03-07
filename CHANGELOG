@@ -1,16 +1,22 @@
 V1.0.0:
 
-- Initial release
+- Initial release.
 
 V1.1.0:
 
-- Added changelog functionality
-- Simulated data for testing purposes
-- Implemented streaming processing logic flow
-- Added plugins for logging and error handling
+- Added changelog functionality.
+- Simulated data for testing purposes.
+- Implemented streaming processing logic flow.
+- Added plugins for logging and error handling.
 
 V1.2.0:
 
-- Added more logic to our data pipelines in streaming
-- Added database writer for Cassandra
-- Implemented logging reporter for streaming with logs info, errors, and APM metrics
+- Added more logic to our data pipelines in streaming.
+- Enhaced the code to make it scalable by avoid using .collect() to apply our pipelines.
+- Added database writer for Cassandra.
+- Implemented logging reporter for streaming with logs info, errors, and APM metrics.
+
+V1.3.0:
+
+- Added AlertsHandler.
+- Added actions (Email only for now) when an alert is triggered.
