@@ -1,4 +1,5 @@
-# TaxiTrips : Big Data Processing & Monitoring
+# TaxiTrips : Big Data Processing & Monitoring 
+# Current Version : 1.2.0
 
 During this project we'll be handling real-time taxi traffic data, apply some ETL, process it and monitor some alertings, in addition to an admin dashboard platform.
 

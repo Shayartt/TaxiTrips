@@ -1,0 +1,16 @@
+V1.0.0:
+
+- Initial release
+
+V1.1.0:
+
+- Added changelog functionality
+- Simulated data for testing purposes
+- Implemented streaming processing logic flow
+- Added plugins for logging and error handling
+
+V1.2.0:
+
+- Added more logic to our data pipelines in streaming
+- Added database writer for Cassandra
+- Implemented logging reporter for streaming with logs info, errors, and APM metrics
