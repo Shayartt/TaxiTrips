@@ -8,18 +8,20 @@ import time
 # Second Level import :
 from src.CassandraHandler import CassandraWriter
 from src.TaxiTrafficProcessor import TaxiTrafficProcessor
+from pyspark.broadcast import Broadcast
+from src.TaxiTrafficProcessor.schema import schema as source_input_schema
 
 # Third Level import :
 from pyspark import SparkContext
 from pyspark.rdd import RDD
 from pyspark.streaming import StreamingContext
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 import pandas as pd 
 
 
 load_dotenv()
 
-def process_stream(rdd: RDD, cd_writer: CassandraWriter, zones_df: pd.DataFrame) -> None : 
+def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: Broadcast) -> None : 
     """
     This function will be responsible for processing the data of the taxi traffic received on the streaming server.
     """
@@ -27,7 +29,7 @@ def process_stream(rdd: RDD, cd_writer: CassandraWriter, zones_df: pd.DataFrame)
     start_time = time.perf_counter()
     
     # Init TaxiTrafficProcessor :
-    taxi_traffic_processor = TaxiTrafficProcessor(rdd, zones_df)
+    taxi_traffic_processor = TaxiTrafficProcessor(spark_df, zone_brodcast)
     
     # Insert Data into Cassandra :
     cd_writer.write_to_cassandra(taxi_traffic_processor.get_data())
@@ -44,7 +46,7 @@ def process_stream(rdd: RDD, cd_writer: CassandraWriter, zones_df: pd.DataFrame)
 if __name__ == "__main__":
     # Create a local SparkContext with two working threads and a batch interval of 1 second
     sc = SparkContext("local[2]", "TrafficStreamingApp")
-    ssc = StreamingContext(sc, 1)
+    # ssc = StreamingContext(sc, 1)
     
     spark = SparkSession.builder.appName("TrafficStreamingApp")\
             .getOrCreate()
@@ -57,20 +59,30 @@ if __name__ == "__main__":
     # Generated streaming session id : 
     streaming_process_id = str(uuid.uuid4())
     
-    # Load Zone lookup dict, note : I used pandas here, because the whole file is small enough and never changed then the best option is to use pandas DF
-    df_zones = pd.read_csv(os.environ['ZONE_LOOKUP_PATH'])
+    # Load Zone lookup dictionary :
+    zone_naming = spark.read.csv("file://" + os.environ['ZONE_LOOKUP_PATH'], header=True, inferSchema=True)
+    zone_naming = zone_naming.select("LocationID", "Zone") # We don't care about rest of columns.
     
     # Init Database Writer:
     cassandra_writer = CassandraWriter()
-    
+        
     # Create a TextStream
-    lines = ssc.textFileStream(input_directory)
+    df_stream = spark \
+        .readStream \
+        .schema(source_input_schema) \
+        .option("latestFirst", "true") \
+        .format("json") \
+        .load(f"{input_directory}/*.json")
     
-    # Process each RDD : 
-    lines.foreachRDD(lambda rdd: process_stream(rdd, cassandra_writer, df_zones))
-    
-    # Start the streaming computation
-    ssc.start()
+    query = df_stream \
+        .writeStream \
+        .foreachBatch(lambda df, epoch_id: process_stream(df, cassandra_writer, zone_naming)) \
+        .start()
 
-    # Wait for the streaming computation to finish
-    ssc.awaitTermination()
+    query.awaitTermination()
+    
+    # # Start the streaming computation
+    # ssc.start()
+
+    # # Wait for the streaming computation to finish
+    # ssc.awaitTermination()
