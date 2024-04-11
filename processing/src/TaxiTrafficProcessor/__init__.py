@@ -75,17 +75,20 @@ class TaxiTrafficProcessor:
         # Compute trip duration:
         self._data_df = self._data_df.withColumn("trip_duration", (unix_timestamp("tpep_dropoff_datetime") - unix_timestamp("tpep_pickup_datetime")) / 60)
         
+        # As a part of spark joining, you may have dupplicated columns which may cause issue later, so we'll clean them right now.
+        self._data_df = self._data_df.drop(pu_zone_df["PULocationID"])
+        self._data_df = self._data_df.drop(do_zone_df["DOLocationID"])
+        
         return True
     
-    def process_data(self):
+    def process_data(self) -> None:
         """
         Method to process the data.
+        
+        To scale with the data pre-processing, please add more pipelines here.
         """
         # Apply pipeline 01 :
         self.pipeline_01()
         
-            
-        pass
-            
             
         

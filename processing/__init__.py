@@ -8,12 +8,12 @@ import time
 # Second Level import :
 from src.CassandraHandler import CassandraWriter
 from src.TaxiTrafficProcessor import TaxiTrafficProcessor
-from pyspark.broadcast import Broadcast
 from src.TaxiTrafficProcessor.schema import schema as source_input_schema
 
 # Third Level import :
 from pyspark import SparkContext
 from pyspark.rdd import RDD
+from pyspark.broadcast import Broadcast
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 import pandas as pd 
@@ -21,7 +21,7 @@ import pandas as pd
 
 load_dotenv()
 
-def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: Broadcast) -> None : 
+def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: SparkDataFrame) -> None : 
     """
     This function will be responsible for processing the data of the taxi traffic received on the streaming server.
     """
@@ -46,7 +46,6 @@ def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_br
 if __name__ == "__main__":
     # Create a local SparkContext with two working threads and a batch interval of 1 second
     sc = SparkContext("local[2]", "TrafficStreamingApp")
-    # ssc = StreamingContext(sc, 1)
     
     spark = SparkSession.builder.appName("TrafficStreamingApp")\
             .getOrCreate()
@@ -80,9 +79,3 @@ if __name__ == "__main__":
         .start()
 
     query.awaitTermination()
-    
-    # # Start the streaming computation
-    # ssc.start()
-
-    # # Wait for the streaming computation to finish
-    # ssc.awaitTermination()

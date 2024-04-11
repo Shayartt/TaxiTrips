@@ -1,31 +1,25 @@
-from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
+#
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+try:
+    import os
+    import boto3
+    import ssl
+    import sys
+    from boto3 import Session
+    from cassandra_sigv4.auth import AuthProvider, Authenticator, SigV4AuthProvider
+    from ssl import SSLContext, PROTOCOL_TLSv1_2, CERT_REQUIRED
+    from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
+    from cassandra import ConsistencyLevel
+    from cassandra.query import SimpleStatement
+    from KeyspacesRetryPolicy import KeyspacesRetryPolicy
 
-# Second Level import :
-from plugins.sigv4.KeyspacesRetryPolicy import KeyspacesRetryPolicy
+except ImportError:
+    raise RuntimeError('Required packages Failed To install please run "python Setup.py install" command or install '
+                       'using pip')
 
-# Libraries to connect into AWS Keyspace : 
-import os
-import boto3
-import ssl
-import sys
-from boto3 import Session
-from cassandra_sigv4.auth import AuthProvider, Authenticator, SigV4AuthProvider
-from ssl import SSLContext, PROTOCOL_TLSv1_2, CERT_REQUIRED
-from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
-from cassandra import ConsistencyLevel
-from cassandra.query import SimpleStatement
-
-
-
-class CassandraWriter:
-    """
-    This class will be responsible for writing the data into Cassandra.
-    """
-    def __init__(self) : 
-        """
-        Constructor will start the connection to Cassandra using signv4 plugins.
-        
-        """
+def main():
         ssl_context = SSLContext(PROTOCOL_TLSv1_2)
         cert_path = os.path.join(os.path.dirname(__file__), 'resources/sf-class2-root.crt')
         ssl_context.load_verify_locations(cert_path)
@@ -39,6 +33,7 @@ class CassandraWriter:
         
         # verify that the session is set correctly
         credentials = boto_session.get_credentials()
+        
         if not credentials or not credentials.access_key:
             sys.exit("No access key found, please setup credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) according to https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence\n")
     
@@ -61,29 +56,13 @@ class CassandraWriter:
                          port=9142,
                          execution_profiles={EXEC_PROFILE_DEFAULT: profile})
 
-        self.session = cluster.connect()
-    
-    def write_to_cassandra(self, data: SparkDataFrame) -> bool:
-        """
-        Insert the data into Cassandra.
-        
-        Parameters:
-        data : SparkDataFrame : The data to be inserted into Cassandra.
-        
-        Returns:
-        status : bool : The status of the operation.
-        
-        """
-        # Convert the SparkDataFrame to a list of rows, check readme to understand why we are doing this.
-        data_to_insert = data.collect()
-        
-        column_names = '"'  +  '", "'.join(data.columns) + '"'
-        
-        num_columns = len(data.columns)
-        placeholders = ','.join(['%s'] * num_columns)
-        
-        for row in data_to_insert : 
-            # Write data to Keyspace
-            self.session.execute(f'INSERT INTO traffic_db.streaming_record ({column_names.lower()}) values ({placeholders})', row)
+        session = cluster.connect()
+        print("CONNECTION TO KEYSPACES SUCCESSFUL2")
+       
+        rows = session.execute('select * from system_schema.keyspaces')
+        print("PRINTING SCHEMA INFORMATION2")
+        for r in rows.current_rows:  
+            print("Found Keyspace: {}".format(r.keyspace_name))
 
-        return True
+if __name__ == '__main__':
+    main()
