@@ -24,7 +24,7 @@ To start the web-application locally, navigate into /webapp and run python app.p
 
 ## Credits:
 
-Cassandra (AWS KeySpace) connector plugin : [text](https://github.com/aws-samples/amazon-keyspaces-examples/tree/main)
+Cassandra (AWS KeySpace) connector plugin : [SOURCE CODE](https://github.com/aws-samples/amazon-keyspaces-examples/tree/main)
 
 ## Conclusion:
 
