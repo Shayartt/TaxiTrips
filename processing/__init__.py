@@ -9,6 +9,7 @@ import time
 from src.CassandraHandler import CassandraWriter
 from src.TaxiTrafficProcessor import TaxiTrafficProcessor
 from src.TaxiTrafficProcessor.schema import schema as source_input_schema
+from plugins.NotifcationReporter import NotificationReporter
 
 # Third Level import :
 from pyspark import SparkContext
@@ -19,9 +20,10 @@ from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 import pandas as pd 
 
 
+
 load_dotenv()
 
-def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: SparkDataFrame) -> None : 
+def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: SparkDataFrame, notification_reporter: NotificationReporter) -> None : 
     """
     This function will be responsible for processing the data of the taxi traffic received on the streaming server.
     """
@@ -29,7 +31,7 @@ def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_br
     start_time = time.perf_counter()
     
     # Init TaxiTrafficProcessor :
-    taxi_traffic_processor = TaxiTrafficProcessor(spark_df, zone_brodcast)
+    taxi_traffic_processor = TaxiTrafficProcessor(spark_df, zone_brodcast, notification_reporter)
     
     # Insert Data into Cassandra :
     cd_writer.write_to_cassandra(taxi_traffic_processor.get_data())
@@ -58,6 +60,9 @@ if __name__ == "__main__":
     # Generated streaming session id : 
     streaming_process_id = str(uuid.uuid4())
     
+    # Init Notification Reporter :
+    notification_reporter = NotificationReporter(stream_id = streaming_process_id)
+    
     # Load Zone lookup dictionary :
     zone_naming = spark.read.csv("file://" + os.environ['ZONE_LOOKUP_PATH'], header=True, inferSchema=True)
     zone_naming = zone_naming.select("LocationID", "Zone") # We don't care about rest of columns.
@@ -75,7 +80,7 @@ if __name__ == "__main__":
     
     query = df_stream \
         .writeStream \
-        .foreachBatch(lambda df, epoch_id: process_stream(df, cassandra_writer, zone_naming)) \
+        .foreachBatch(lambda df, epoch_id: process_stream(df, cassandra_writer, zone_naming, notification_reporter)) \
         .start()
 
     query.awaitTermination()

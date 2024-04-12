@@ -2,6 +2,9 @@ from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 
 # Second Level import :
 from plugins.sigv4.KeyspacesRetryPolicy import KeyspacesRetryPolicy
+from plugins.NotifcationReporter import NotificationReporter
+from plugins.ErrorHandler import ErrorHandler
+from plugins.ErrorHandler.enums import report_status_enum
 
 # Libraries to connect into AWS Keyspace : 
 import os
@@ -15,12 +18,14 @@ from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
 from cassandra import ConsistencyLevel
 from cassandra.query import SimpleStatement
 
-
+MY_ERROR_HANDLER = ErrorHandler()
 
 class CassandraWriter:
     """
     This class will be responsible for writing the data into Cassandra.
     """
+    _track_reporter: NotificationReporter
+    
     def __init__(self) : 
         """
         Constructor will start the connection to Cassandra using signv4 plugins.
@@ -63,6 +68,7 @@ class CassandraWriter:
 
         self.session = cluster.connect()
     
+    @MY_ERROR_HANDLER.handle_error
     def write_to_cassandra(self, data: SparkDataFrame) -> bool:
         """
         Insert the data into Cassandra.
@@ -85,5 +91,12 @@ class CassandraWriter:
         for row in data_to_insert : 
             # Write data to Keyspace
             self.session.execute(f'INSERT INTO traffic_db.streaming_record ({column_names.lower()}) values ({placeholders})', row)
-
+        
+        # Logging the operation :
+        reporting_tracker_message = {
+            "message" : f"Data inserted into the database successfully.",
+            "status" : report_status_enum.SUCCESS.value, 
+        }
+        self._track_reporter.publish_to_sqs( reporting_tracker_message)
+        
         return True

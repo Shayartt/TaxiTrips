@@ -3,7 +3,9 @@ from dataclasses import dataclass
 import json 
 
 # Second Level import :
-
+from plugins.NotifcationReporter import NotificationReporter
+from plugins.ErrorHandler import ErrorHandler
+from plugins.ErrorHandler.enums import report_status_enum
 
 # Third Level import :
 from pyspark.rdd import RDD
@@ -11,6 +13,9 @@ from pyspark.broadcast import Broadcast
 from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 from pyspark.sql.functions import *
 import pandas as pd 
+
+
+MY_ERROR_HANDLER = ErrorHandler()
 
 """
 
@@ -29,21 +34,25 @@ class TaxiTrafficProcessor:
     """
     _data_df: SparkDataFrame
     zone_brodcast: Broadcast
+    _track_reporter: NotificationReporter
 
     def __post_init__(self):
         """
         Post init method to initialize the class. This will automatically process the data and broadcast the zone matrix
         after the class is initialized.
         """
-        self.process_data()
         self.zone_brodcast = broadcast(self.zone_brodcast)
+        self.process_data()
+        
 
+    @MY_ERROR_HANDLER.handle_error
     def get_data(self):
         """
         Method to get the data.
         """
         return self._data_df
 
+    @MY_ERROR_HANDLER.handle_error
     def pipeline_01(self) -> bool:
         """
         Method to apply the first pipeline of the data.
@@ -79,8 +88,16 @@ class TaxiTrafficProcessor:
         self._data_df = self._data_df.drop(pu_zone_df["PULocationID"])
         self._data_df = self._data_df.drop(do_zone_df["DOLocationID"])
         
+        # Logging the operation :
+        reporting_tracker_message = {
+            "message" : f"First Pipeline executed successfully.",
+            "status" : report_status_enum.SUCCESS.value, 
+        }
+        self._track_reporter.publish_to_sqs( reporting_tracker_message)
+        
         return True
     
+    @MY_ERROR_HANDLER.handle_error
     def process_data(self) -> None:
         """
         Method to process the data.
@@ -89,6 +106,13 @@ class TaxiTrafficProcessor:
         """
         # Apply pipeline 01 :
         self.pipeline_01()
+        
+        # Logging the operation :
+        reporting_tracker_message = {
+            "message" : f"Data processing finished successfully.",
+            "status" : report_status_enum.SUCCESS.value, 
+        }
+        self._track_reporter.publish_to_sqs( reporting_tracker_message)
         
             
         

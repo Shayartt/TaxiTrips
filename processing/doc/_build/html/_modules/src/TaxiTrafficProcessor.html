@@ -71,7 +71,9 @@
 <span class="kn">import</span> <span class="nn">json</span> 
 
 <span class="c1"># Second Level import :</span>
-
+<span class="kn">from</span> <span class="nn">plugins.NotifcationReporter</span> <span class="kn">import</span> <span class="n">NotificationReporter</span>
+<span class="kn">from</span> <span class="nn">plugins.ErrorHandler</span> <span class="kn">import</span> <span class="n">ErrorHandler</span>
+<span class="kn">from</span> <span class="nn">plugins.ErrorHandler.enums</span> <span class="kn">import</span> <span class="n">report_status_enum</span>
 
 <span class="c1"># Third Level import :</span>
 <span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">RDD</span>
@@ -79,6 +81,9 @@
 <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span><span class="p">,</span> <span class="n">DataFrame</span> <span class="k">as</span> <span class="n">SparkDataFrame</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+
+
+<span class="n">MY_ERROR_HANDLER</span> <span class="o">=</span> <span class="n">ErrorHandler</span><span class="p">()</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -97,22 +102,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_data_df</span><span class="p">:</span> <span class="n">SparkDataFrame</span>
     <span class="n">zone_brodcast</span><span class="p">:</span> <span class="n">Broadcast</span>
+    <span class="n">_track_reporter</span><span class="p">:</span> <span class="n">NotificationReporter</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post init method to initialize the class. This will automatically process the data and broadcast the zone matrix</span>
 <span class="sd">        after the class is initialized.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zone_brodcast</span> <span class="o">=</span> <span class="n">broadcast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zone_brodcast</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_data</span><span class="p">()</span>
+        
 
-<div class="viewcode-block" id="TaxiTrafficProcessor.get_data"><a class="viewcode-back" href="../../index.html#src.TaxiTrafficProcessor.TaxiTrafficProcessor.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TaxiTrafficProcessor.get_data"><a class="viewcode-back" href="../../index.html#src.TaxiTrafficProcessor.TaxiTrafficProcessor.get_data">[docs]</a>    <span class="nd">@MY_ERROR_HANDLER</span><span class="o">.</span><span class="n">handle_error</span>
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to get the data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span></div>
 
-<div class="viewcode-block" id="TaxiTrafficProcessor.pipeline_01"><a class="viewcode-back" href="../../index.html#src.TaxiTrafficProcessor.TaxiTrafficProcessor.pipeline_01">[docs]</a>    <span class="k">def</span> <span class="nf">pipeline_01</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="TaxiTrafficProcessor.pipeline_01"><a class="viewcode-back" href="../../index.html#src.TaxiTrafficProcessor.TaxiTrafficProcessor.pipeline_01">[docs]</a>    <span class="nd">@MY_ERROR_HANDLER</span><span class="o">.</span><span class="n">handle_error</span>
+    <span class="k">def</span> <span class="nf">pipeline_01</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to apply the first pipeline of the data.</span>
 
@@ -143,18 +152,36 @@
         <span class="c1"># Compute trip duration:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">unix_timestamp</span><span class="p">(</span><span class="s2">&quot;tpep_dropoff_datetime&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">unix_timestamp</span><span class="p">(</span><span class="s2">&quot;tpep_pickup_datetime&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span>
         
+        <span class="c1"># As a part of spark joining, you may have dupplicated columns which may cause issue later, so we&#39;ll clean them right now.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">pu_zone_df</span><span class="p">[</span><span class="s2">&quot;PULocationID&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">do_zone_df</span><span class="p">[</span><span class="s2">&quot;DOLocationID&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Logging the operation :</span>
+        <span class="n">reporting_tracker_message</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;message&quot;</span> <span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;First Pipeline executed successfully.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span> <span class="p">:</span> <span class="n">report_status_enum</span><span class="o">.</span><span class="n">SUCCESS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> 
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span><span class="o">.</span><span class="n">publish_to_sqs</span><span class="p">(</span> <span class="n">reporting_tracker_message</span><span class="p">)</span>
+        
         <span class="k">return</span> <span class="kc">True</span></div>
     
-<div class="viewcode-block" id="TaxiTrafficProcessor.process_data"><a class="viewcode-back" href="../../index.html#src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data">[docs]</a>    <span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TaxiTrafficProcessor.process_data"><a class="viewcode-back" href="../../index.html#src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data">[docs]</a>    <span class="nd">@MY_ERROR_HANDLER</span><span class="o">.</span><span class="n">handle_error</span>
+    <span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to process the data.</span>
+<span class="sd">        </span>
+<span class="sd">        To scale with the data pre-processing, please add more pipelines here.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Apply pipeline 01 :</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_01</span><span class="p">()</span>
         
-            
-        <span class="k">pass</span></div></div>
-            
+        <span class="c1"># Logging the operation :</span>
+        <span class="n">reporting_tracker_message</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;message&quot;</span> <span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Data processing finished successfully.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span> <span class="p">:</span> <span class="n">report_status_enum</span><span class="o">.</span><span class="n">SUCCESS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> 
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span><span class="o">.</span><span class="n">publish_to_sqs</span><span class="p">(</span> <span class="n">reporting_tracker_message</span><span class="p">)</span></div></div>
+        
             
         
 </pre></div>

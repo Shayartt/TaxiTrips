@@ -86,7 +86,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NotificationReporter is used to report into SQS queue to publish into socketIO microservices to be consumed by the front-end and insert into OS index to vizualise in Kibana.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_name</span> <span class="o">=</span> <span class="s2">&quot;traffic_processing_tracker&quot;</span><span class="p">)</span> <span class="p">:</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">stream_id</span><span class="p">,</span> <span class="n">index_name</span> <span class="o">=</span> <span class="s2">&quot;traffic_processing_tracker&quot;</span><span class="p">)</span> <span class="p">:</span> 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor of NotificationReporter class that will be the mother function to init resources needed to keep the application in-track and publish anything to logging system and socket.</span>
 <span class="sd">        </span>
@@ -94,7 +94,7 @@
 <span class="sd">        :type index_name: str</span>
 <span class="sd">        :return: NotificationReporter object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_id</span> <span class="o">=</span> <span class="n">stream_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_index_name</span> <span class="o">=</span> <span class="n">index_name</span> <span class="c1"># TODO use in input later to make this reporter dynamic and used from the whole project.</span>
         <span class="c1"># Init boto3 client to be used to publish into SQS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__sqs_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;sqs&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_REGION&quot;</span><span class="p">],</span> <span class="n">aws_access_key_id</span><span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">],</span> <span class="n">aws_secret_access_key</span><span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">])</span>
@@ -110,7 +110,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span> <span class="p">:</span> 
             <span class="n">message</span><span class="p">[</span><span class="s1">&#39;received_at&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span> <span class="c1"># Add received_at field to the message</span>
-            
+            <span class="n">message</span><span class="p">[</span><span class="s1">&#39;stream_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_id</span> <span class="c1"># Add stream_id field to the message</span>
             <span class="c1"># Prepare format : </span>
             <span class="n">input_body</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;document_content&quot;</span> <span class="p">:</span> <span class="n">message</span>

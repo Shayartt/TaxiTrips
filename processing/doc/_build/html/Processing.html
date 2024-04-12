@@ -45,6 +45,7 @@
 <li><a class="reference internal" href="#">Processing package</a><ul>
 <li><a class="reference internal" href="#module-contents">Module contents</a></li>
 <li><a class="reference internal" href="#taxi-traffic-processor">Taxi Traffic Processor :</a><ul>
+<li><a class="reference internal" href="#src.TaxiTrafficProcessor.MY_ERROR_HANDLER"><code class="docutils literal notranslate"><span class="pre">MY_ERROR_HANDLER</span></code></a></li>
 <li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor</span></code></a><ul>
 <li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.get_data"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor.get_data()</span></code></a></li>
 <li><a class="reference internal" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.pipeline_01"><code class="docutils literal notranslate"><span class="pre">TaxiTrafficProcessor.pipeline_01()</span></code></a></li>
@@ -96,9 +97,15 @@
 </section>
 <section id="taxi-traffic-processor">
 <h2>Taxi Traffic Processor :<a class="headerlink" href="#taxi-traffic-processor" title="Permalink to this heading"></a></h2>
-<span class="target" id="module-src.TaxiTrafficProcessor"></span><dl class="py class">
+<span class="target" id="module-src.TaxiTrafficProcessor"></span><dl class="py data">
+<dt class="sig sig-object py" id="src.TaxiTrafficProcessor.MY_ERROR_HANDLER">
+<span class="sig-prename descclassname"><span class="pre">src.TaxiTrafficProcessor.</span></span><span class="sig-name descname"><span class="pre">MY_ERROR_HANDLER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;plugins.ErrorHandler.ErrorHandler</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#src.TaxiTrafficProcessor.MY_ERROR_HANDLER" title="Permalink to this definition"></a></dt>
+<dd><p>TaxiTrafficProcessor</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.TaxiTrafficProcessor.</span></span><span class="sig-name descname"><span class="pre">TaxiTrafficProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_data_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_brodcast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Broadcast</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.TaxiTrafficProcessor.</span></span><span class="sig-name descname"><span class="pre">TaxiTrafficProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_data_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_brodcast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Broadcast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_track_reporter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="index.html#plugins.NotifcationReporter.NotificationReporter" title="plugins.NotifcationReporter.NotificationReporter"><span class="pre">NotificationReporter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This Class will be responsible for processing the data of the taxi traffic received on the streaming server.</p>
 <dl class="py method">
@@ -118,8 +125,9 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data">
-<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor.process_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/TaxiTrafficProcessor.html#TaxiTrafficProcessor.process_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.TaxiTrafficProcessor.TaxiTrafficProcessor.process_data" title="Permalink to this definition"></a></dt>
 <dd><p>Method to process the data.</p>
+<p>To scale with the data pre-processing, please add more pipelines here.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -139,8 +147,13 @@
 <p>This class will be responsible for writing the data into Cassandra.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.CassandraHandler.CassandraWriter.write_to_cassandra">
-<span class="sig-name descname"><span class="pre">write_to_cassandra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CassandraHandler.html#CassandraWriter.write_to_cassandra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CassandraHandler.CassandraWriter.write_to_cassandra" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">write_to_cassandra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/src/CassandraHandler.html#CassandraWriter.write_to_cassandra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CassandraHandler.CassandraWriter.write_to_cassandra" title="Permalink to this definition"></a></dt>
+<dd><p>Insert the data into Cassandra.</p>
+<p>Parameters:
+data : SparkDataFrame : The data to be inserted into Cassandra.</p>
+<p>Returns:
+status : bool : The status of the operation.</p>
+</dd></dl>
 
 </dd></dl>
 
