@@ -68,7 +68,7 @@ if __name__ == "__main__":
     zone_naming = zone_naming.select("LocationID", "Zone") # We don't care about rest of columns.
     
     # Init Database Writer:
-    cassandra_writer = CassandraWriter()
+    cassandra_writer = CassandraWriter(notification_reporter)
         
     # Create a TextStream
     df_stream = spark \

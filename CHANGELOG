@@ -20,3 +20,7 @@ V1.3.0:
 
 - Added AlertsHandler.
 - Added actions (Email only for now) when an alert is triggered.
+
+V1.4.0:
+
+- Added WebApp with real-time updates.

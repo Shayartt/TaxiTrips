@@ -24,13 +24,15 @@ class CassandraWriter:
     """
     This class will be responsible for writing the data into Cassandra.
     """
-    _track_reporter: NotificationReporter
     
-    def __init__(self) : 
+    def __init__(self, track_reporter: NotificationReporter) -> None: 
         """
         Constructor will start the connection to Cassandra using signv4 plugins.
         
+        :param track_reporter : NotificationReporter : The notification reporter object.
+        
         """
+        self._track_reporter = track_reporter
         ssl_context = SSLContext(PROTOCOL_TLSv1_2)
         cert_path = os.path.join(os.path.dirname(__file__), 'resources/sf-class2-root.crt')
         ssl_context.load_verify_locations(cert_path)

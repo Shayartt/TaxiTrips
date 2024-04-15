@@ -47,7 +47,7 @@ class NotificationReporter:
             input_body = {
                 "document_content" : message
             }
-            self.__sqs_client.send_message(QueueUrl=self.__SQS_NOTIFICATION, MessageBody=json.dumps(message)) # This is by default an Async call, no need to implement anything specific.
+            self.__sqs_client.send_message(QueueUrl=self.__SQS_NOTIFICATION, MessageBody=json.dumps(input_body)) # This is by default an Async call, no need to implement anything specific.
             return True
         except Exception as e : 
             print("Error while publishing to SQS : " + str(e))
