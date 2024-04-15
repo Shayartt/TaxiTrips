@@ -52,3 +52,19 @@ class NotificationReporter:
         except Exception as e : 
             print("Error while publishing to SQS : " + str(e))
             return False
+
+    def send_email(self, message, to= str(os.environ['EMAILS_TO']).split(",")) : 
+        """
+        Send email to the specified email addresses.
+        
+        :param message: Message to send.
+        :type message: str
+        :param to: List of email addresses to send the email to.
+        :type to: list
+        :return: True if success else False.
+        """
+        try : 
+            pass
+        except Exception as e : 
+            print("Error while sending email : " + str(e))
+            return False

@@ -6,6 +6,7 @@ class report_status_enum(Enum): # Every Possible type should be declared here, i
     IN_PROGRESS = 0
     SKIPPED = 2 
     INTERRUPTED = 3
+    TRIGGERED = 4
     
 class error_handling_enum(Enum):  # 100-1000 means Critical, > 1000 Means critical but consider it as success, < 10 means info , 10-100 means warning
     TRACK_REPORTER_NOT_FOUND = 113 # Track reporter not found in the function args

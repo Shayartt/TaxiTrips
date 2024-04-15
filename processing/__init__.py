@@ -9,6 +9,7 @@ import time
 from src.CassandraHandler import CassandraWriter
 from src.TaxiTrafficProcessor import TaxiTrafficProcessor
 from src.TaxiTrafficProcessor.schema import schema as source_input_schema
+from src.AlertHandler import AlertHandler
 from plugins.NotifcationReporter import NotificationReporter
 
 # Third Level import :
@@ -23,7 +24,7 @@ import pandas as pd
 
 load_dotenv()
 
-def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: SparkDataFrame, notification_reporter: NotificationReporter) -> None : 
+def process_stream(spark_session: SparkSession, spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_brodcast: SparkDataFrame, notification_reporter: NotificationReporter) -> None : 
     """
     This function will be responsible for processing the data of the taxi traffic received on the streaming server.
     """
@@ -33,8 +34,14 @@ def process_stream(spark_df: SparkDataFrame, cd_writer: CassandraWriter, zone_br
     # Init TaxiTrafficProcessor :
     taxi_traffic_processor = TaxiTrafficProcessor(spark_df, zone_brodcast, notification_reporter)
     
+    data_processed = taxi_traffic_processor.get_data()
+    
     # Insert Data into Cassandra :
-    cd_writer.write_to_cassandra(taxi_traffic_processor.get_data())
+    cd_writer.write_to_cassandra(data_processed)
+    
+    # Apply Alerts rules : 
+    my_alerts_handler = AlertHandler(spark_session, notification_reporter)
+    my_alerts_handler.apply_alerts(data_processed)
     
     # Capture the end time
     end_time = time.perf_counter()
@@ -80,7 +87,7 @@ if __name__ == "__main__":
     
     query = df_stream \
         .writeStream \
-        .foreachBatch(lambda df, epoch_id: process_stream(df, cassandra_writer, zone_naming, notification_reporter)) \
+        .foreachBatch(lambda df, epoch_id: process_stream(spark, df, cassandra_writer, zone_naming, notification_reporter)) \
         .start()
 
     query.awaitTermination()
