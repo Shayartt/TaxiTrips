@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import json 
 import time 
+from datetime import datetime
 
 # Second Level import :
 from plugins.NotifcationReporter import NotificationReporter
@@ -30,7 +31,7 @@ class AlertHandler:
     This Class will be responsible for monitoring a few alerts and report them to the logging system and send email if needed.
     """
     __spark_session: SparkSession
-    _track_reporter : NotificationReporter
+    track_reporter : NotificationReporter
     LOCATION_BLACKLIST = ["Seaport"]
     
     def __post_init__(self):
@@ -51,13 +52,13 @@ class AlertHandler:
         """
         Method to apply alerts on the data.
         """
-        # Save data into temporary view to be used in the rules.
-        data.createOrReplaceTempView("new_records")
+        # Save in cache the data : 
+        data.persist()  
         
         # Applying the rules, to scale add more rules here.
-        self.rule_1()
-        self.rule_2()
-        self.rule_3()
+        self.rule_1(data)
+        self.rule_2(data)
+        self.rule_3(data)
         
         # Report the alerts
         self.report_alerts()
@@ -74,50 +75,47 @@ class AlertHandler:
             "length" : data.count(),
             "alerts" : self.__alerts_df.count()
         }
-        self._track_reporter.publish_to_sqs( reporting_tracker_message)
+        self.track_reporter.publish_to_sqs( reporting_tracker_message)
             
     
     @MY_ERROR_HANDLER.handle_error
-    def rule_1(self) -> None:
+    def rule_1(self, data: SparkDataFrame) -> None:
         """
         Method to apply the first rule of the alerts, we will check if the total_amount > 1000 and the trip_distance < 100.
         """
-        
         # We'll use SQL to apply the rule.
-        df_check = self.__spark_session.sql("SELECT * FROM new_records WHERE total_amount > 1000 AND trip_distance < 100")
+        df_check = data.filter((data.total_amount > 1000) & (data.trip_distance < 100))
         
         # Check if the dataframe is not empty
         if df_check.count() > 0:
             # Add new record to self.__alerts_df with id = 1, status = "ALERT", details = "Total amount > 1000 and trip distance < 100"
-            self.__alerts_df = self.__alerts_df.union(self.__spark_session.createDataFrame([(1, "ALERT", "Total amount > 1000 and trip distance < 100", pd.Timestamp.now())], ["id", "status", "details", "datetime"]))
+            self.__alerts_df = self.__alerts_df.union(self.__spark_session.createDataFrame([(1, "ALERT", "Total amount > 1000 and trip distance < 100", datetime.now())], ["id", "status", "details", "datetime"]))
             
     @MY_ERROR_HANDLER.handle_error
-    def rule_2(self) -> None:
+    def rule_2(self, data: SparkDataFrame) -> None:
         """
         Method to apply the second rule of the alerts, we will check if the dolocation is in the LOCATION_BLACKLIST.
         """
-        
         # We'll use SQL to apply the rule.
-        df_check = self.__spark_session.sql(f"SELECT * FROM new_records WHERE dolocation IN {tuple(self.LOCATION_BLACKLIST)}")
+        df_check = data.filter(data.DOLocationName.isin(self.LOCATION_BLACKLIST))
         
         # Check if the dataframe is not empty
         if df_check.count() > 0:
             # Add new record to self._data_df with id = 2, status = "ALERT", details = "Dropoff location is in the LOCATION_BLACKLIST"
-            self.__alerts_df = self.__alerts_df.union(self.__spark_session.createDataFrame([(1, "ALERT", "Dropoff location is in the LOCATION_BLACKLIST", pd.Timestamp.now())], ["id", "status", "details", "datetime"]))
+            self.__alerts_df = self.__alerts_df.union(self.__spark_session.createDataFrame([(1, "ALERT", "Dropoff location is in the LOCATION_BLACKLIST", datetime.now())], ["id", "status", "details", "datetime"]))
             
     @MY_ERROR_HANDLER.handle_error
-    def rule_3(self) -> None:
+    def rule_3(self, data: SparkDataFrame) -> None:
         """
         Method to apply the third rule of the alerts, we will check if pickup datetime is higher than 9pm night.
         """
-        
         # We'll use SQL to apply the rule.
-        df_check = self.__spark_session.sql("SELECT * FROM new_records WHERE hour(tpep_pickup_datetime) > 21")
+        df_check = data.filter(hour(data.tpep_pickup_datetime) > 21)
         
         # Check if the dataframe is not empty
         if df_check.count() > 0:
             # Add new record to self._data_df with id = 3, status = "ALERT", details = "Pickup datetime is higher than 9pm night"
-            self.__alerts_df = self.__alerts_df.union(self.__spark_session.createDataFrame([(1, "ALERT", "Pickup datetime is higher than 9pm night", pd.Timestamp.now())], ["id", "status", "details", "datetime"]))
+            self.__alerts_df = self.__alerts_df.union(self.__spark_session.createDataFrame([(1, "ALERT", "Pickup datetime is higher than 9pm night", datetime.now())], ["id", "status", "details", "datetime"]))
             
     @MY_ERROR_HANDLER.handle_error
     def report_alerts(self) -> None:
@@ -131,10 +129,10 @@ class AlertHandler:
                     "message" : f"Alert triggered : {record['details']}",
                     "status" : report_status_enum.TRIGGERED.value, 
                 }
-                self._track_reporter.publish_to_sqs( reporting_tracker_message)
+                self.track_reporter.publish_to_sqs( reporting_tracker_message)
                 
             # Email Notification : 
-            self._track_reporter.send_email("Alerts triggered, please check the logging system for more details.")
+            self.track_reporter.send_email("Alerts triggered, please check the logging system for more details.")
         else : 
             print("No alerts triggered.")
         

@@ -32,6 +32,7 @@ Unfortunately, using AWS Keyspace with EMR wasn't the best option. Despite both 
 
 Perhaps OpenSearch or PostgreSQL would have been a better option, but since this is a non-profitable project, I've decided to continue and challenge myself to find a solution.
 
+Personally I love using SQL filtering over my dataframe instead of dataframe APIs, in the alert handler, I tried to use them first but I had an issue with saving the dataframe into a temporary view, even passing the main spark session to my class I was getting the error "The table or view cannot be found", I'll try to work on that part later or maybe in another project to figure out how can I use the temporary views when loading data from my streaming, please feel free to commit a new branch using sql queries instead of dataframe APIs in the alert handler, it's would be very helpfull.
 
 More details coming soon..
 

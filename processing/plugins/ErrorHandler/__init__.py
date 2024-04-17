@@ -89,15 +89,13 @@ class ErrorHandler :
                 }
                 
                 res = self._track_reporter.publish_to_sqs(reporting_tracker_message, func.__name__)
-                    
-                print(reporting_tracker_message, res)
                 
                 try : 
                     if int(str(e)) > 10000 : continue_anyways = True # If it's a soft critical error we can consider it as success
                     else : continue_anyways = False
                 except : continue_anyways = False
                 
-                if not continue_anyways : 
+                if not continue_anyways : # Maybe if you want more trace you can disable the default one and print the "trace_logs" or play with it as you wish, remember e here is the error code.
                     raise Exception(e)
                 
                 else: # if error code > 10000, means the error is used only to stop the process, no need to consider it as error, it's a success execution.

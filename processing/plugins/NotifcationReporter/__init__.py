@@ -2,7 +2,9 @@ import os
 from datetime import datetime
 import json 
 import boto3 
+from dotenv import load_dotenv
 
+load_dotenv()
 
 """
 
@@ -31,18 +33,23 @@ class NotificationReporter:
         # Init boto3 client to be used to publish into SQS
         self.__sqs_client = boto3.client("sqs", os.environ["AWS_REGION"], aws_access_key_id= os.environ["AWS_ACCESS_KEY_ID"], aws_secret_access_key= os.environ["AWS_SECRET_ACCESS_KEY"])
         self.__SQS_NOTIFICATION = os.environ["SQS_NOTIFICATION"]
+        self.__SQS_EMAIL = os.environ["SQS_EMAIL"]
         
-    def publish_to_sqs(self, message) : 
+    def publish_to_sqs(self, message: dict, function_name: str = None) : 
         """
         Publish message to SQS queue.
         
         :param message: Message to publish.
-        :type message: str
+        :type message: dict
+        :param function_name: Name of the function that is publishing the message.
+        :type function_name: str
         :return: True if success else False.
         """
         try : 
             message['received_at'] = str(datetime.now()) # Add received_at field to the message
             message['stream_id'] = self.stream_id # Add stream_id field to the message
+            message['function_name'] = function_name # Add function_name field to the message
+            message['index_name'] = self._index_name # Add index_name field to the message to specify the index to publish into OS.
             # Prepare format : 
             input_body = {
                 "document_content" : message
@@ -64,7 +71,17 @@ class NotificationReporter:
         :return: True if success else False.
         """
         try : 
-            pass
+            
+            vars = {
+                        "subject" : "sample_message",
+                        "to" : to,
+                        "variables": {
+                            "msg": message
+                            },
+                    }
+
+            self.__sqs_client.send_message(QueueUrl=self.__SQS_EMAIL, MessageBody=json.dumps(vars)) 
+
         except Exception as e : 
             print("Error while sending email : " + str(e))
             return False
