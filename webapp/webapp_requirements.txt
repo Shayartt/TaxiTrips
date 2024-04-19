@@ -1,0 +1,4 @@
+flask==2.2.2
+flask-oidc==1.4.0
+flask-saml2==0.3.0
+boto3
