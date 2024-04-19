@@ -49,7 +49,7 @@ class CassandraHandler():
         if not region:  
             sys.exit("You do not have a region set.  Set environment variable AWS_REGION or provide a configuration see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence\n")
             
-
+        print("Region boto3 : " + str(region))
         auth_provider = SigV4AuthProvider(boto_session)
         contact_point = "cassandra.{}.amazonaws.com".format(region)
 

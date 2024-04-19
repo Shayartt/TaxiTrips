@@ -2,6 +2,7 @@ from pyspark.sql.types import StructType, StringType, IntegerType, FloatType, Lo
 
 # Define schema for the incoming JSON data
 schema = StructType() \
+    .add("user_id", IntegerType()) \
     .add("DOLocationID", LongType()) \
     .add("PULocationID", LongType()) \
     .add("RatecodeID", LongType()) \

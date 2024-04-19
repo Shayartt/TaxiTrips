@@ -42,7 +42,8 @@ class DummyGenerator(Generator):
         """
         # Generate a random number between 1 and 22 and used it as trip perdiod in minutes.
         random_number = random.randint(1, 22)
-        tmp = {"generated_id": self._id, "tpep_dropoff_datetime" : datetime.now().isoformat(), "tpep_pickup_datetime" : (datetime.now() - timedelta(minutes=random_number)).isoformat() }
+        user_id = random.randint(1, 100)
+        tmp = {"user_id" : user_id,"generated_id": self._id, "tpep_dropoff_datetime" : datetime.now().isoformat(), "tpep_pickup_datetime" : (datetime.now() - timedelta(minutes=random_number)).isoformat() }
         
         # For each column in our source_data except : tpep_dropoff_datetime, we will generate a random value based on values in our source_data : 
         for col in source_data.columns :

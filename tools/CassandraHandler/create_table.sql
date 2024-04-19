@@ -1,5 +1,6 @@
 
-CREATE TABLE traffic_db.streaming_recordnew_table (
+CREATE TABLE traffic_db.streaming_record (
+    user_id int,
     DOLocationID int,
     PULocationID int,
     RatecodeID int,
@@ -25,5 +26,5 @@ CREATE TABLE traffic_db.streaming_recordnew_table (
     PULocationName text,
     DOLocationName text,
     trip_duration float,
-    PRIMARY KEY (DOLocationID, PULocationID)
+    PRIMARY KEY (user_id, DOLocationID, PULocationID)
 );
