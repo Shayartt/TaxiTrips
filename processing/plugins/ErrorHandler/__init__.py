@@ -43,7 +43,10 @@ class ErrorHandler :
         """
         if args  :
             function_class = args[0] # Get first args which is going to be self class
-            self._track_reporter = function_class.track_reporter # Get the track_reporter object from the class, carefull this may crash if not fund, maybe add try except or a previous check?
+            try : 
+                self._track_reporter = function_class.track_reporter # Get the track_reporter object from the class, carefull this may crash if not fund, maybe add try except or a previous check?
+            except : # Temporary, to fix it use _track_reporter everywhere...
+                self._track_reporter = function_class._track_reporter 
         else :
             raise Exception(error_handling_enum.TRACK_REPORTER_NOT_FOUND.value)
         
