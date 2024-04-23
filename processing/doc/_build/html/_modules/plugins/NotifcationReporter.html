@@ -70,7 +70,9 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">json</span> 
 <span class="kn">import</span> <span class="nn">boto3</span> 
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
 
+<span class="n">load_dotenv</span><span class="p">()</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -99,26 +101,57 @@
         <span class="c1"># Init boto3 client to be used to publish into SQS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__sqs_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;sqs&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_REGION&quot;</span><span class="p">],</span> <span class="n">aws_access_key_id</span><span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">],</span> <span class="n">aws_secret_access_key</span><span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__SQS_NOTIFICATION</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SQS_NOTIFICATION&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__SQS_EMAIL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SQS_EMAIL&quot;</span><span class="p">]</span>
         
-<div class="viewcode-block" id="NotificationReporter.publish_to_sqs"><a class="viewcode-back" href="../../index.html#plugins.NotifcationReporter.NotificationReporter.publish_to_sqs">[docs]</a>    <span class="k">def</span> <span class="nf">publish_to_sqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span> <span class="p">:</span> 
+<div class="viewcode-block" id="NotificationReporter.publish_to_sqs"><a class="viewcode-back" href="../../index.html#plugins.NotifcationReporter.NotificationReporter.publish_to_sqs">[docs]</a>    <span class="k">def</span> <span class="nf">publish_to_sqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Publish message to SQS queue.</span>
 <span class="sd">        </span>
 <span class="sd">        :param message: Message to publish.</span>
-<span class="sd">        :type message: str</span>
+<span class="sd">        :type message: dict</span>
+<span class="sd">        :param function_name: Name of the function that is publishing the message.</span>
+<span class="sd">        :type function_name: str</span>
 <span class="sd">        :return: True if success else False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span> <span class="p">:</span> 
             <span class="n">message</span><span class="p">[</span><span class="s1">&#39;received_at&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span> <span class="c1"># Add received_at field to the message</span>
             <span class="n">message</span><span class="p">[</span><span class="s1">&#39;stream_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_id</span> <span class="c1"># Add stream_id field to the message</span>
+            <span class="n">message</span><span class="p">[</span><span class="s1">&#39;function_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_name</span> <span class="c1"># Add function_name field to the message</span>
+            <span class="n">message</span><span class="p">[</span><span class="s1">&#39;index_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_name</span> <span class="c1"># Add index_name field to the message to specify the index to publish into OS.</span>
             <span class="c1"># Prepare format : </span>
             <span class="n">input_body</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;document_content&quot;</span> <span class="p">:</span> <span class="n">message</span>
             <span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__sqs_client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">QueueUrl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__SQS_NOTIFICATION</span><span class="p">,</span> <span class="n">MessageBody</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">))</span> <span class="c1"># This is by default an Async call, no need to implement anything specific.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sqs_client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">QueueUrl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__SQS_NOTIFICATION</span><span class="p">,</span> <span class="n">MessageBody</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">input_body</span><span class="p">))</span> <span class="c1"># This is by default an Async call, no need to implement anything specific.</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span> <span class="p">:</span> 
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while publishing to SQS : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="NotificationReporter.send_email"><a class="viewcode-back" href="../../index.html#plugins.NotifcationReporter.NotificationReporter.send_email">[docs]</a>    <span class="k">def</span> <span class="nf">send_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;EMAILS_TO&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span> <span class="p">:</span> 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send email to the specified email addresses.</span>
+<span class="sd">        </span>
+<span class="sd">        :param message: Message to send.</span>
+<span class="sd">        :type message: str</span>
+<span class="sd">        :param to: List of email addresses to send the email to.</span>
+<span class="sd">        :type to: list</span>
+<span class="sd">        :return: True if success else False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span> <span class="p">:</span> 
+            
+            <span class="nb">vars</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;subject&quot;</span> <span class="p">:</span> <span class="s2">&quot;sample_message&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;to&quot;</span> <span class="p">:</span> <span class="n">to</span><span class="p">,</span>
+                        <span class="s2">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="n">message</span>
+                            <span class="p">},</span>
+                    <span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sqs_client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">QueueUrl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__SQS_EMAIL</span><span class="p">,</span> <span class="n">MessageBody</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">vars</span><span class="p">))</span> 
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span> <span class="p">:</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while sending email : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="k">return</span> <span class="kc">False</span></div></div>
 </pre></div>
 

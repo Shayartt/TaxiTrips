@@ -111,7 +111,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">args</span>  <span class="p">:</span>
             <span class="n">function_class</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Get first args which is going to be self class</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span> <span class="o">=</span> <span class="n">function_class</span><span class="o">.</span><span class="n">track_reporter</span> <span class="c1"># Get the track_reporter object from the class, carefull this may crash if not fund, maybe add try except or a previous check?</span>
+            <span class="k">try</span> <span class="p">:</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span> <span class="o">=</span> <span class="n">function_class</span><span class="o">.</span><span class="n">track_reporter</span> <span class="c1"># Get the track_reporter object from the class, carefull this may crash if not fund, maybe add try except or a previous check?</span>
+            <span class="k">except</span> <span class="p">:</span> <span class="c1"># Temporary, to fix it use _track_reporter everywhere...</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span> <span class="o">=</span> <span class="n">function_class</span><span class="o">.</span><span class="n">_track_reporter</span> 
         <span class="k">else</span> <span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">error_handling_enum</span><span class="o">.</span><span class="n">TRACK_REPORTER_NOT_FOUND</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
         
@@ -157,15 +160,13 @@
                 <span class="p">}</span>
                 
                 <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span><span class="o">.</span><span class="n">publish_to_sqs</span><span class="p">(</span><span class="n">reporting_tracker_message</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-                    
-                <span class="nb">print</span><span class="p">(</span><span class="n">reporting_tracker_message</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
                 
                 <span class="k">try</span> <span class="p">:</span> 
                     <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">10000</span> <span class="p">:</span> <span class="n">continue_anyways</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># If it&#39;s a soft critical error we can consider it as success</span>
                     <span class="k">else</span> <span class="p">:</span> <span class="n">continue_anyways</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">except</span> <span class="p">:</span> <span class="n">continue_anyways</span> <span class="o">=</span> <span class="kc">False</span>
                 
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">continue_anyways</span> <span class="p">:</span> 
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">continue_anyways</span> <span class="p">:</span> <span class="c1"># Maybe if you want more trace you can disable the default one and print the &quot;trace_logs&quot; or play with it as you wish, remember e here is the error code.</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 
                 <span class="k">else</span><span class="p">:</span> <span class="c1"># if error code &gt; 10000, means the error is used only to stop the process, no need to consider it as error, it&#39;s a success execution.</span>

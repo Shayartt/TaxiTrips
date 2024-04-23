@@ -67,74 +67,35 @@
              
   <h1>Source code for src.CassandraHandler</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span><span class="p">,</span> <span class="n">DataFrame</span> <span class="k">as</span> <span class="n">SparkDataFrame</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="c1"># Second Level import :</span>
-<span class="kn">from</span> <span class="nn">plugins.sigv4.KeyspacesRetryPolicy</span> <span class="kn">import</span> <span class="n">KeyspacesRetryPolicy</span>
+<span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span> <span class="c1"># Coudln&#39;t figure out a better way ... unless I publish the package.</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">tools.CassandraHandler</span> <span class="kn">import</span> <span class="n">CassandraHandler</span>
 <span class="kn">from</span> <span class="nn">plugins.NotifcationReporter</span> <span class="kn">import</span> <span class="n">NotificationReporter</span>
 <span class="kn">from</span> <span class="nn">plugins.ErrorHandler</span> <span class="kn">import</span> <span class="n">ErrorHandler</span>
 <span class="kn">from</span> <span class="nn">plugins.ErrorHandler.enums</span> <span class="kn">import</span> <span class="n">report_status_enum</span>
 
-<span class="c1"># Libraries to connect into AWS Keyspace : </span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
-<span class="kn">import</span> <span class="nn">ssl</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">boto3</span> <span class="kn">import</span> <span class="n">Session</span>
-<span class="kn">from</span> <span class="nn">cassandra_sigv4.auth</span> <span class="kn">import</span> <span class="n">AuthProvider</span><span class="p">,</span> <span class="n">Authenticator</span><span class="p">,</span> <span class="n">SigV4AuthProvider</span>
-<span class="kn">from</span> <span class="nn">ssl</span> <span class="kn">import</span> <span class="n">SSLContext</span><span class="p">,</span> <span class="n">PROTOCOL_TLSv1_2</span><span class="p">,</span> <span class="n">CERT_REQUIRED</span>
-<span class="kn">from</span> <span class="nn">cassandra.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span><span class="p">,</span> <span class="n">ExecutionProfile</span><span class="p">,</span> <span class="n">EXEC_PROFILE_DEFAULT</span>
-<span class="kn">from</span> <span class="nn">cassandra</span> <span class="kn">import</span> <span class="n">ConsistencyLevel</span>
-<span class="kn">from</span> <span class="nn">cassandra.query</span> <span class="kn">import</span> <span class="n">SimpleStatement</span>
-
 <span class="n">MY_ERROR_HANDLER</span> <span class="o">=</span> <span class="n">ErrorHandler</span><span class="p">()</span>
 
-<div class="viewcode-block" id="CassandraWriter"><a class="viewcode-back" href="../../index.html#src.CassandraHandler.CassandraWriter">[docs]</a><span class="k">class</span> <span class="nc">CassandraWriter</span><span class="p">:</span>
+<div class="viewcode-block" id="CassandraWriter"><a class="viewcode-back" href="../../index.html#src.CassandraHandler.CassandraWriter">[docs]</a><span class="k">class</span> <span class="nc">CassandraWriter</span><span class="p">(</span><span class="n">CassandraHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class will be responsible for writing the data into Cassandra.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_track_reporter</span><span class="p">:</span> <span class="n">NotificationReporter</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="p">:</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">track_reporter</span><span class="p">:</span> <span class="n">NotificationReporter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor will start the connection to Cassandra using signv4 plugins.</span>
 <span class="sd">        </span>
+<span class="sd">        :param track_reporter : NotificationReporter : The notification reporter object.</span>
+<span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ssl_context</span> <span class="o">=</span> <span class="n">SSLContext</span><span class="p">(</span><span class="n">PROTOCOL_TLSv1_2</span><span class="p">)</span>
-        <span class="n">cert_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources/sf-class2-root.crt&#39;</span><span class="p">)</span>
-        <span class="n">ssl_context</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="n">cert_path</span><span class="p">)</span>
-        <span class="n">ssl_context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">CERT_REQUIRED</span>
-        
-        <span class="c1"># this will automatically pull the credentials from either the</span>
-        <span class="c1"># ~/.aws/credentials file</span>
-        <span class="c1"># ~/.aws/config </span>
-        <span class="c1"># or from the boto environment variables.</span>
-        <span class="n">boto_session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
-        
-        <span class="c1"># verify that the session is set correctly</span>
-        <span class="n">credentials</span> <span class="o">=</span> <span class="n">boto_session</span><span class="o">.</span><span class="n">get_credentials</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">credentials</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">credentials</span><span class="o">.</span><span class="n">access_key</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;No access key found, please setup credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) according to https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    
-        <span class="n">region</span> <span class="o">=</span> <span class="n">boto_session</span><span class="o">.</span><span class="n">region_name</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">region</span><span class="p">:</span>  
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;You do not have a region set.  Set environment variable AWS_REGION or provide a configuration see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            
-
-        <span class="n">auth_provider</span> <span class="o">=</span> <span class="n">SigV4AuthProvider</span><span class="p">(</span><span class="n">boto_session</span><span class="p">)</span>
-        <span class="n">contact_point</span> <span class="o">=</span> <span class="s2">&quot;cassandra.</span><span class="si">{}</span><span class="s2">.amazonaws.com&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
-
-        <span class="n">profile</span> <span class="o">=</span> <span class="n">ExecutionProfile</span><span class="p">(</span>
-            <span class="n">consistency_level</span><span class="o">=</span><span class="n">ConsistencyLevel</span><span class="o">.</span><span class="n">LOCAL_QUORUM</span><span class="p">,</span>
-            <span class="n">retry_policy</span><span class="o">=</span><span class="n">KeyspacesRetryPolicy</span><span class="p">(</span><span class="n">RETRY_MAX_ATTEMPTS</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
-
-        <span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">([</span><span class="n">contact_point</span><span class="p">],</span> 
-                         <span class="n">ssl_context</span><span class="o">=</span><span class="n">ssl_context</span><span class="p">,</span> 
-                         <span class="n">auth_provider</span><span class="o">=</span><span class="n">auth_provider</span><span class="p">,</span>
-                         <span class="n">port</span><span class="o">=</span><span class="mi">9142</span><span class="p">,</span>
-                         <span class="n">execution_profiles</span><span class="o">=</span><span class="p">{</span><span class="n">EXEC_PROFILE_DEFAULT</span><span class="p">:</span> <span class="n">profile</span><span class="p">})</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_track_reporter</span> <span class="o">=</span> <span class="n">track_reporter</span>
     
 <div class="viewcode-block" id="CassandraWriter.write_to_cassandra"><a class="viewcode-back" href="../../index.html#src.CassandraHandler.CassandraWriter.write_to_cassandra">[docs]</a>    <span class="nd">@MY_ERROR_HANDLER</span><span class="o">.</span><span class="n">handle_error</span>
     <span class="k">def</span> <span class="nf">write_to_cassandra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">SparkDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

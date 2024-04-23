@@ -56,6 +56,7 @@
 <li><a class="reference internal" href="#notification-reporter">Notification Reporter :</a><ul>
 <li><a class="reference internal" href="#plugins.NotifcationReporter.NotificationReporter"><code class="docutils literal notranslate"><span class="pre">NotificationReporter</span></code></a><ul>
 <li><a class="reference internal" href="#plugins.NotifcationReporter.NotificationReporter.publish_to_sqs"><code class="docutils literal notranslate"><span class="pre">NotificationReporter.publish_to_sqs()</span></code></a></li>
+<li><a class="reference internal" href="#plugins.NotifcationReporter.NotificationReporter.send_email"><code class="docutils literal notranslate"><span class="pre">NotificationReporter.send_email()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -73,6 +74,7 @@
 <li><a class="reference internal" href="#plugins.ErrorHandler.enums.report_status_enum.IN_PROGRESS"><code class="docutils literal notranslate"><span class="pre">report_status_enum.IN_PROGRESS</span></code></a></li>
 <li><a class="reference internal" href="#plugins.ErrorHandler.enums.report_status_enum.SKIPPED"><code class="docutils literal notranslate"><span class="pre">report_status_enum.SKIPPED</span></code></a></li>
 <li><a class="reference internal" href="#plugins.ErrorHandler.enums.report_status_enum.SUCCESS"><code class="docutils literal notranslate"><span class="pre">report_status_enum.SUCCESS</span></code></a></li>
+<li><a class="reference internal" href="#plugins.ErrorHandler.enums.report_status_enum.TRIGGERED"><code class="docutils literal notranslate"><span class="pre">report_status_enum.TRIGGERED</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -187,11 +189,31 @@ which is going to be the class itself, this is used to avoid passing the track_r
 <p>NotificationReporter is used to report into SQS queue to publish into socketIO microservices to be consumed by the front-end and insert into OS index to vizualise in Kibana.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="plugins.NotifcationReporter.NotificationReporter.publish_to_sqs">
-<span class="sig-name descname"><span class="pre">publish_to_sqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plugins/NotifcationReporter.html#NotificationReporter.publish_to_sqs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plugins.NotifcationReporter.NotificationReporter.publish_to_sqs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">publish_to_sqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plugins/NotifcationReporter.html#NotificationReporter.publish_to_sqs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plugins.NotifcationReporter.NotificationReporter.publish_to_sqs" title="Permalink to this definition"></a></dt>
 <dd><p>Publish message to SQS queue.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – Message to publish.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>dict</em>) – Message to publish.</p></li>
+<li><p><strong>function_name</strong> (<em>str</em>) – Name of the function that is publishing the message.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if success else False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plugins.NotifcationReporter.NotificationReporter.send_email">
+<span class="sig-name descname"><span class="pre">send_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['email1',</span> <span class="pre">'email2']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plugins/NotifcationReporter.html#NotificationReporter.send_email"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plugins.NotifcationReporter.NotificationReporter.send_email" title="Permalink to this definition"></a></dt>
+<dd><p>Send email to the specified email addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>str</em>) – Message to send.</p></li>
+<li><p><strong>to</strong> (<em>list</em>) – List of email addresses to send the email to.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if success else False.</p>
@@ -254,6 +276,11 @@ which is going to be the class itself, this is used to avoid passing the track_r
 <span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#plugins.ErrorHandler.enums.report_status_enum.SUCCESS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plugins.ErrorHandler.enums.report_status_enum.TRIGGERED">
+<span class="sig-name descname"><span class="pre">TRIGGERED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#plugins.ErrorHandler.enums.report_status_enum.TRIGGERED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -310,8 +337,8 @@ which is going to be the class itself, this is used to avoid passing the track_r
 <h2>CassandraHandler :<a class="headerlink" href="#cassandrahandler" title="Permalink to this heading"></a></h2>
 <span class="target" id="module-src.CassandraHandler"></span><dl class="py class">
 <dt class="sig sig-object py" id="src.CassandraHandler.CassandraWriter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.CassandraHandler.</span></span><span class="sig-name descname"><span class="pre">CassandraWriter</span></span><a class="reference internal" href="_modules/src/CassandraHandler.html#CassandraWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CassandraHandler.CassandraWriter" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.CassandraHandler.</span></span><span class="sig-name descname"><span class="pre">CassandraWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_reporter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#plugins.NotifcationReporter.NotificationReporter" title="plugins.NotifcationReporter.NotificationReporter"><span class="pre">NotificationReporter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CassandraHandler.html#CassandraWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CassandraHandler.CassandraWriter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CassandraHandler</span></code></p>
 <p>This class will be responsible for writing the data into Cassandra.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.CassandraHandler.CassandraWriter.write_to_cassandra">
