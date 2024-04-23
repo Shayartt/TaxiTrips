@@ -1,1 +1,1 @@
-from .analytics import CassandraReader, AnalyticsGenerator
+from .analytics import CassandraReader, AnalyticsGenerator, OpenSearchReader

@@ -10,6 +10,11 @@ For more information or any questions, please contact malloukmoe@gmail.com.
 
 ![High-Level Diagram](processing/doc/diagrams/Tec-Diagram-Flow.png?raw=true "High-Level")
 
+## Admin Dashboard: 
+![Dashboard](processing/doc/diagrams/dashboard.JPG "Dashboard")
+
+
+
 ## Start Project : 
 
 #### Streaming:
@@ -37,8 +42,4 @@ Perhaps OpenSearch or PostgreSQL would have been a better option, but since this
 Personally I love using SQL filtering over my dataframe instead of dataframe APIs, in the alert handler, I tried to use them first but I had an issue with saving the dataframe into a temporary view, even passing the main spark session to my class I was getting the error "The table or view cannot be found", I'll try to work on that part later or maybe in another project to figure out how can I use the temporary views when loading data from my streaming, please feel free to commit a new branch using sql queries instead of dataframe APIs in the alert handler, it's would be very helpfull.
 
 The CassandraHandler was built to serve the spark project only, the dependencies there makes it very complex to use it somewhere else, this is a mistake that I've realised later when I started working on the webApp and found out that I needed to use it, to fix that following the SOLID coding norms, I'll need to either make it a mother class  and create sub-classes that enherite from it, you can check previous commits code to compare the changes, after this commit it's will be fixed, however the python library import is tricky here and I had to use the sys add path to specify my /tools for the main Cassandra handler, maybe you can help me by importing it in a simpler way?
-
-
-
-More details coming soon..
 

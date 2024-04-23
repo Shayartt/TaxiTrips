@@ -2,7 +2,8 @@ from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 import os
 import sys
 from typing import Dict, List
-
+from opensearchpy import OpenSearch, helpers
+import pandas as pd 
 
 # Second Level import :
 current_dir = os.path.dirname(__file__)
@@ -39,3 +40,47 @@ class CassandraReader(CassandraHandler):
         
         return r
     
+class OpenSearchReader():
+    """
+    This class will be responsible for writing the data into OpenSearch.
+    """
+    
+    def __init__(self) -> None: 
+        """
+        Constructor will start the connection to OpenSearch.
+        
+        """
+        opensearch_host = os.environ.get("OPENSEARCH_HOST", "localhost")
+        opensearch_username = os.environ.get("OPENSEARCH_USER", "root")
+        opensearch_password = os.environ.get("OPENSEARCH_PW", "passport")
+
+        # Create an OpenSearch client
+        self.opensearch_client = OpenSearch(opensearch_host, http_auth=(opensearch_username, opensearch_password))
+    
+    def read_from_opensearch(self, index_name: str, query: str) -> List[Dict[str, str]]:
+        """
+        Read data from OpenSearch.
+        
+        Parameters:
+        query : str : the query to be executed.
+        
+        Returns:
+        data : List[Dict[str, str]] : The data read from OpenSearch.
+        
+        """
+        # Read data from OpenSearch
+        response = self.opensearch_client.search(
+            body = query,
+            index = index_name,
+            size = 10000 # In a production project, you would use .scroll instead to load all variable, for us we only need top 10k it's totally fine.
+        )
+
+        # Get the hits from the response, and format them into a list of dictionaries
+        hits = response['hits']['hits']
+        result = [ 
+                        {
+                            **hit['_source']
+                        } for hit in hits]
+
+        df = pd.DataFrame(result)
+        return df

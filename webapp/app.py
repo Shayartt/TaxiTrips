@@ -4,16 +4,17 @@ import os
 import sys
 
 # Second Level import :
-from models import CassandraReader, AnalyticsGenerator
+from models import CassandraReader, OpenSearchReader, AnalyticsGenerator
 
 app = Flask(__name__)
 
 # Init Cassandra Handler
 cassandra_handler = CassandraReader()
+opensearch_handler = OpenSearchReader()
 
 @app.route('/')
 def index():
-    analytics_generated = AnalyticsGenerator(cassandra_handler)
+    analytics_generated = AnalyticsGenerator(cassandra_handler, opensearch_handler)
     
     my_dashboard_variables = analytics_generated.load_dashboard_variables()
     print("Variables loaded are : " + str(my_dashboard_variables))

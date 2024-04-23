@@ -62,5 +62,6 @@ class DummyGenerator(Generator):
         # Set the readiness to True
         self.is_ready = True
         
+        # tmp['total_amount'] = 989742 # To test alerts
         self.data = tmp # Save the generated data
         return tmp
